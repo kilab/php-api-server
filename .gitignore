@@ -1,4 +1,5 @@
-.idea
-vendor
-logs
+/.idea
+/vendor
+/logs
 /composer.lock
+/app/Config.php

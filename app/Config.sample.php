@@ -8,8 +8,8 @@ return [
         'Password' => '',
     ],
     'Default' => [
-        'Controller' => 'IndexController',
-        'Action' => 'HelloAction',
+        'Resource' => 'index',
+        'Action' => 'hello',
     ],
     'Logger' => [
         'Enabled' => true,

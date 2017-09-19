@@ -9,7 +9,7 @@ return [
     ],
     'Default' => [
         'Resource' => 'index',
-        'Action' => 'hello',
+        'ResourceAction' => 'hello',
     ],
     'Logger' => [
         'Enabled' => true,

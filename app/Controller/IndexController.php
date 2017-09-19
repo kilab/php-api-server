@@ -7,7 +7,7 @@ use Kilab\Api\Controller;
 class IndexController extends Controller
 {
 
-    public function listAction() {
-        return [1, 2, 3];
+    public function HelloAction() {
+        return 'Hello World!';
     }
 }

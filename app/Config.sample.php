@@ -1,6 +1,16 @@
 <?php
 
 return [
+    'Database' => [
+        'Host' => '',
+        'Name' => '',
+        'User' => '',
+        'Password' => '',
+    ],
+    'Default' => [
+        'Controller' => 'IndexController',
+        'Action' => 'HelloAction',
+    ],
     'Logger' => [
         'Enabled' => true,
         'Mail' => [

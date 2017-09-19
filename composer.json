@@ -1,0 +1,28 @@
+{
+  "name": "kilab/rest-api",
+  "description": "REST API server.",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Paweł 'kilab' Balicki",
+      "email": "pawel@kilab.pl"
+    }
+  ],
+  "autoload": {
+    "psr-4": {
+      "App\\": "app/"
+    }
+  },
+  "repositories": {
+    "dev-package": {
+      "type": "path",
+      "url": "../api",
+      "options": {
+        "symlink": true
+      }
+    }
+  },
+  "require": {
+    "kilab/api": "@dev"
+  }
+}

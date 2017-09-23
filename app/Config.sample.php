@@ -13,11 +13,13 @@ return [
     'Logger' => [
         'Enabled' => true,
         'Mail' => [
+            'Enabled' => false,
             'Protocol' => 'SMTP',
             'Host' => '',
             'User' => '',
             'Password' => '',
             'Port' => 587,
+            'RecipientAddress' => '',
         ]
     ],
     'Response' => [

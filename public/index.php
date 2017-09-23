@@ -15,7 +15,7 @@ if (!empty($matches)) {
 
 $loader = require BASE_DIR . 'vendor/autoload.php';
 
-$errorHandler = new Kilab\Api\ErrorHandler();
+$errorHandler = new Kilab\Api\ErrorHandler($requestServerInfo);
 $request = new Kilab\Api\Request($requestServerInfo);
 
 // run server

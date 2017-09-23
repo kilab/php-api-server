@@ -23,6 +23,7 @@
     }
   },
   "require": {
-    "kilab/api": "@dev"
+    "kilab/api": "@dev",
+    "swiftmailer/swiftmailer": "^6.0"
   }
 }

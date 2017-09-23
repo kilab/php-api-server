@@ -9,7 +9,6 @@ return [
     ],
     'Default' => [
         'Resource' => 'index',
-        'ResourceAction' => 'hello',
     ],
     'Logger' => [
         'Enabled' => true,
@@ -19,6 +18,15 @@ return [
             'User' => '',
             'Password' => '',
             'Port' => 587,
+        ]
+    ],
+    'Response' => [
+        'Headers' => [
+            'Access-Control-Allow-Credentials' => 'false',
+            'Access-Control-Allow-Headers' => 'x-http-method-override, x-callback',
+            'Access-Control-Allow-Methods' => 'OPTIONS, GET, POST, PUT, DELETE',
+            'Access-Control-Allow-Origin' => '*',
+            'Vary' => '',
         ]
     ]
 ];

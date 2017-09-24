@@ -1,5 +1,5 @@
 {
-  "name": "kilab/rest-api",
+  "name": "kilab/api-server",
   "description": "REST API server.",
   "license": "MIT",
   "authors": [

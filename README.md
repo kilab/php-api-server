@@ -5,6 +5,7 @@ Create light and real REST API server with data structure generating.
 **Package is still in development! First stable, fully functional version is scheduled for 1.0.0.**
 
 **Main goals:**
+
  - Request and responses supports only JSON format
  - Multi web server support
  - Support for API multi versions (default is V1)

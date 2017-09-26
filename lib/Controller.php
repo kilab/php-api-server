@@ -98,7 +98,7 @@ class Controller
      */
     public function postItemAction(array $data)
     {
-        $resourceClassName = sprintf('\App\\%s\\Model\\%s',
+        $resourceClassName = sprintf('\App\\%s\\EntityEntity\\%s',
             API_VERSION,
             ucfirst(Inflector::singularize($this->request->getResource()))
         );

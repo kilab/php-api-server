@@ -2,6 +2,7 @@
 
 return [
     'Database' => [
+        'Driver' => 'pdo_mysql',
         'Host' => '',
         'Name' => '',
         'User' => '',

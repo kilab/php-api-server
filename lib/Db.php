@@ -10,7 +10,7 @@ class Db
     public static function instance(): EntityManager
     {
         $devMode = Env::get('ENVIRONMENT') === 'dev';
-        $entitiesDir = BASE_DIR . '/app/' . API_VERSION . '/Model';
+        $entitiesDir = BASE_DIR . '/app/' . API_VERSION . '/Entity';
 
         $config = Setup::createAnnotationMetadataConfiguration([$entitiesDir], $devMode);
 

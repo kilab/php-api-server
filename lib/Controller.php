@@ -132,23 +132,31 @@ class Controller
      * @param int $id
      *
      * @throws EntityNotFoundException
+     * @throws \Doctrine\Common\Persistence\Mapping\MappingException
      * @throws \Doctrine\ORM\ORMException
      * @throws \Doctrine\ORM\OptimisticLockException
      * @throws \Doctrine\ORM\TransactionRequiredException
+     * @throws \ReflectionException
      */
     public function deleteItemAction(int $id)
     {
         $entity = $this->repository->find($id);
 
         if ($entity === null) {
-            throw new EntityNotFoundException('Record for given ID not found');
+            $repositoryClassName = explode('\\', $this->repository->getClassName());
+
+            throw new EntityNotFoundException(sprintf('%s record for ID: %s not found',
+                end($repositoryClassName),
+                $id
+            ));
         }
 
-        // $entityRef = Db::instance()->getReference($this->repository->getClassName(), $id);
-        //
-        // Db::instance()->merge($entityRef);
-        // Db::instance()->remove($entityRef);
-        // Db::instance()->flush();
+        $em = Db::instance();
+
+        $entityRef = $em->getReference($this->repository->getClassName(), $id);
+
+        $em->remove($entityRef);
+        $em->flush();
 
         $this->responseCode = Response::HTTP_NO_CONTENT;
     }

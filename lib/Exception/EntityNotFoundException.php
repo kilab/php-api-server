@@ -5,7 +5,7 @@ namespace Kilab\Api\Exception;
 use Exception;
 use Throwable;
 
-class ResourceNotFoundException extends Exception
+class EntityNotFoundException extends Exception
 {
     public function __construct($message = "", $code = 404, Throwable $previous = null)
     {

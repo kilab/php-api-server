@@ -10,9 +10,9 @@ class Db
     public static function instance(): EntityManager
     {
         $devMode = Env::get('ENVIRONMENT') === 'dev';
-        $entitiesDir = BASE_DIR . '/app/' . API_VERSION . '/Entity';
+        $entitiesDir = BASE_DIR . '/app/' . API_VERSION . '/Model';
 
-        $config = Setup::createAnnotationMetadataConfiguration([$entitiesDir], $devMode);
+        $config = Setup::createAnnotationMetadataConfiguration([$entitiesDir], $devMode, null, null, false);
 
         $connectionSettings = [
             'driver'   => Config::get('Database.Driver'),

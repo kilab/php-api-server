@@ -26,6 +26,7 @@
   "require": {
     "swiftmailer/swiftmailer": "^6.0",
     "doctrine/orm": "^2.5",
-    "symfony/http-foundation": "^3.3"
+    "symfony/http-foundation": "^3.3",
+    "jms/serializer": "^1.8"
   }
 }

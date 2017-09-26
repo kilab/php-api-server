@@ -3,7 +3,7 @@
 namespace Kilab\Api;
 
 use ReflectionMethod;
-use Kilab\Api\Exception\ResourceNotFoundException;
+use Kilab\Api\Exception\EntityNotFoundException;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
 class Server
@@ -26,7 +26,8 @@ class Server
 
     /**
      * Run server app.
-     * @throws ResourceNotFoundException
+     *
+     * @throws EntityNotFoundException
      */
     public function run(): void
     {
@@ -36,17 +37,17 @@ class Server
             exit;
         }
 
-        $resourceController = $this->defineControllerClass();
-        $resourceControllerMethod = $this->defineControllerMethod();
+        $entityController = $this->defineControllerClass();
+        $entityControllerMethod = $this->defineControllerMethod();
 
-        if (!class_exists($resourceController)) {
-            throw new ResourceNotFoundException(sprintf('Resource \'%s\' not found', $this->request->getResource()));
+        if (!class_exists($entityController)) {
+            throw new EntityNotFoundException(sprintf('Entity \'%s\' not found', $this->request->getEntity()));
         }
-        if (!method_exists($resourceController, $resourceControllerMethod)) {
-            throw new ResourceNotFoundException(sprintf(
-                'Action \'%s\' not found in \'%s\' resource',
-                $resourceControllerMethod,
-                $this->request->getResource()
+        if (!method_exists($entityController, $entityControllerMethod)) {
+            throw new EntityNotFoundException(sprintf(
+                'Action \'%s\' not found in \'%s\' entity',
+                $entityController,
+                $this->request->getEntity()
             ));
         }
 
@@ -60,13 +61,14 @@ class Server
         }
 
         /** @var Controller $controller */
-        $controller = new $resourceController($this->request);
-        $controllerMethod = new ReflectionMethod($resourceController, $resourceControllerMethod);
+        $controller = new $entityController($this->request);
+        $controllerMethod = new ReflectionMethod($entityController, $entityControllerMethod);
         $controllerMethod->invokeArgs($controller, $methodParams);
 
         $returnAsCallback = $this->request->getHeader('http_x_callback') ?? null;
 
-        $response = new JsonResponse($controller->responseData,
+        $response = new JsonResponse(
+            ['status' => true, 'results' => $controller->responseData],
             $controller->responseCode,
             Config::get('Response.Headers'));
 
@@ -74,6 +76,7 @@ class Server
             $response->setCallback($returnAsCallback);
         }
 
+        $response->setEncodingOptions(JSON_UNESCAPED_UNICODE);
         $response->send();
         exit;
     }
@@ -85,12 +88,12 @@ class Server
      */
     private function defineControllerClass(): string
     {
-        $resourceController = sprintf('\App\\%s\\Controller\\%sController',
+        $entityController = sprintf('\App\\%s\\Controller\\%sController',
             ucfirst(API_VERSION),
-            ucfirst($this->request->getResource())
+            ucfirst($this->request->getEntity())
         );
 
-        return $resourceController;
+        return $entityController;
     }
 
     /**

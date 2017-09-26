@@ -28,21 +28,21 @@ class Request
     private $parameters;
 
     /**
-     * The name of the desired resource.
+     * The name of the desired entity.
      *
      * @var string
      */
-    private $resource;
+    private $entity;
 
     /**
-     * The name of desired resource action to call.
+     * The name of desired entity action to call.
      *
      * @var string
      */
     private $action;
 
     /**
-     * Element ID of the desired resource.
+     * Element ID of the desired entity.
      *
      * @var int
      */
@@ -67,7 +67,7 @@ class Request
 
         $this->setMethod();
         $this->setParameters();
-        $this->setResource();
+        $this->setEntity();
         $this->setAction();
     }
 
@@ -138,39 +138,39 @@ class Request
     }
 
     /**
-     * Return resource name.
+     * Return entity name.
      *
      * @return string
      */
-    public function getResource(): string
+    public function getEntity(): string
     {
-        return $this->resource;
+        return $this->entity;
     }
 
     /**
-     * Set request resource name.
+     * Set request entity name.
      */
-    private function setResource(): void
+    private function setEntity(): void
     {
-        $resourceName = Config::get('Default.Resource');
-        $resourcePath = explode('/', $this->uriPath);
+        $entityName = Config::get('Default.Entity');
+        $entityPath = explode('/', $this->uriPath);
 
-        unset($resourcePath[0], $resourcePath[1]);
-        $resourcePath = array_values($resourcePath);
+        unset($entityPath[0], $entityPath[1]);
+        $entityPath = array_values($entityPath);
 
-        if ($resourcePath) {
-            if (isset($resourcePath[1]) && $resourcePath[1] > 0) {
-                $this->setIdentifier($resourcePath[1]);
+        if ($entityPath) {
+            if (isset($entityPath[1]) && $entityPath[1] > 0) {
+                $this->setIdentifier($entityPath[1]);
             }
 
-            $resourceName = $resourcePath[0];
+            $entityName = $entityPath[0];
         }
 
-        $this->resource = $resourceName;
+        $this->entity = $entityName;
     }
 
     /**
-     * Get resource action to call.
+     * Get entity action to call.
      *
      * @return string
      */
@@ -180,15 +180,15 @@ class Request
     }
 
     /**
-     * Set resource action to call.
+     * Set entity action to call.
      */
     private function setAction(): void
     {
-        $this->action = $this->determineResourceAction();
+        $this->action = $this->determineEntityAction();
     }
 
     /**
-     * Get resource identifier.
+     * Get entity identifier.
      *
      * @return int
      */
@@ -198,7 +198,7 @@ class Request
     }
 
     /**
-     * Set resource identifier.
+     * Set entity identifier.
      *
      * @param int $id
      */
@@ -250,7 +250,7 @@ class Request
      *
      * @return string
      */
-    private function determineResourceAction(): string
+    private function determineEntityAction(): string
     {
         $action = '';
         $actionPath = explode('/', $this->uriPath);

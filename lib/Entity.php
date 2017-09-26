@@ -2,7 +2,7 @@
 
 namespace Kilab\Api;
 
-class Resource
+abstract class Entity
 {
 
     /**

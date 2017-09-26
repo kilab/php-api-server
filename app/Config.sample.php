@@ -9,7 +9,7 @@ return [
         'Password' => '',
     ],
     'Default' => [
-        'Resource' => 'index',
+        'Entity' => 'index',
     ],
     'Logger' => [
         'Enabled' => true,

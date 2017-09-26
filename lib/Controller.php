@@ -3,7 +3,8 @@
 namespace Kilab\Api;
 
 use Doctrine\Common\Inflector\Inflector;
-use Kilab\Api\Exception\ResourceNotFoundException;
+use Kilab\Api\Exception\EntityNotFoundException;
+use JMS\Serializer\SerializerBuilder;
 use Symfony\Component\HttpFoundation\Response;
 
 class Controller
@@ -56,7 +57,7 @@ class Controller
         $plainEntities = [];
 
         foreach ($entities as $entity) {
-            $plainEntities[] = $entity->getWholeEntity();
+            $plainEntities[] = $this->serializeToArray($entity->getWholeEntity());
         }
 
         $this->responseData = $plainEntities;
@@ -67,7 +68,7 @@ class Controller
      *
      * @param int $id
      *
-     * @throws ResourceNotFoundException
+     * @throws EntityNotFoundException
      * @throws \Doctrine\ORM\ORMException
      * @throws \Doctrine\ORM\OptimisticLockException
      * @throws \Doctrine\ORM\TransactionRequiredException
@@ -79,13 +80,13 @@ class Controller
         if ($entity === null) {
             $repositoryClassName = explode('\\', $this->repository->getClassName());
 
-            throw new ResourceNotFoundException(sprintf('%s record for ID: %s not found',
+            throw new EntityNotFoundException(sprintf('%s record for ID: %s not found',
                 end($repositoryClassName),
                 $id
             ));
         }
 
-        $this->responseData = $entity->getWholeEntity();
+        $this->responseData = $this->serializeToArray($entity);
     }
 
     /**
@@ -98,19 +99,19 @@ class Controller
      */
     public function postItemAction(array $data)
     {
-        $resourceClassName = sprintf('\App\\%s\\EntityEntity\\%s',
+        $entityClassName = sprintf('\App\\%s\\Entity\\%s',
             API_VERSION,
-            ucfirst(Inflector::singularize($this->request->getResource()))
+            ucfirst(Inflector::singularize($this->request->getEntity()))
         );
 
-        /** @var Resource $resourceEntity */
-        $resourceEntity = new $resourceClassName();
-        $resourceEntity->setWholeEntity($data);
+        $entity = new $entityClassName();
+        $entity->setWholeEntity($data);
 
-        Db::instance()->persist($resourceEntity);
-        Db::instance()->flush();
+        $em = Db::instance();
+        $em->persist($entity);
+        $em->flush();
 
-        $this->responseData = $resourceEntity;
+        $this->responseData = $this->serializeToArray($entity);
         $this->responseCode = Response::HTTP_CREATED;
     }
 
@@ -130,7 +131,7 @@ class Controller
      *
      * @param int $id
      *
-     * @throws ResourceNotFoundException
+     * @throws EntityNotFoundException
      * @throws \Doctrine\ORM\ORMException
      * @throws \Doctrine\ORM\OptimisticLockException
      * @throws \Doctrine\ORM\TransactionRequiredException
@@ -140,7 +141,7 @@ class Controller
         $entity = $this->repository->find($id);
 
         if ($entity === null) {
-            throw new ResourceNotFoundException('Record for given ID not found');
+            throw new EntityNotFoundException('Record for given ID not found');
         }
 
         // $entityRef = Db::instance()->getReference($this->repository->getClassName(), $id);
@@ -150,6 +151,20 @@ class Controller
         // Db::instance()->flush();
 
         $this->responseCode = Response::HTTP_NO_CONTENT;
+    }
+
+    /**
+     * Serialize entity object to array.
+     *
+     * @param $entity
+     *
+     * @return array
+     */
+    protected function serializeToArray($entity): array
+    {
+        $serializer = SerializerBuilder::create()->build();
+
+        return $serializer->toArray($entity);
     }
 
 }

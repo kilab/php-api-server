@@ -120,10 +120,32 @@ class Controller
      *
      * @param int   $id
      * @param array $data
+     *
+     * @throws EntityNotFoundException
+     * @throws \Doctrine\ORM\ORMException
+     * @throws \Doctrine\ORM\OptimisticLockException
+     * @throws \Doctrine\ORM\TransactionRequiredException
      */
     public function putItemAction(int $id, array $data)
     {
-        $this->responseData = 'PUT//3333' . $id;
+        $em = Db::instance();
+        $entity = $em->getRepository($this->repository->getClassName())->find($id);
+
+        if ($entity === null) {
+            $repositoryClassName = explode('\\', $this->repository->getClassName());
+
+            throw new EntityNotFoundException(sprintf('%s record for ID: %s not found',
+                end($repositoryClassName),
+                $id
+            ));
+        }
+
+        $entity->setWholeEntity($data);
+
+        $em->flush();
+
+        $this->responseData = $this->serializeToArray($entity);
+        $this->responseCode = Response::HTTP_OK;
     }
 
     /**

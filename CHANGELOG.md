@@ -1,6 +1,7 @@
 # Changelog
 
 2017-09-27 (0.2.0):
+
  - Doctrine ORM included
  - Added CRUD actions in main controller
  - Refactored: Model classes to Entity classes

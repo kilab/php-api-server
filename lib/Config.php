@@ -74,6 +74,6 @@ class Config
      */
     private static function getConfigFilePath(): string
     {
-        return BASE_DIR . 'app/' . ucfirst(API_VERSION) . '/Config/' . Env::get('ENVIRONMENT') . '.php';
+        return BASE_DIR . 'app/' . ucfirst(API_VERSION) . '/Config/Config.' . Env::get('ENVIRONMENT') . '.php';
     }
 }

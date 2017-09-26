@@ -270,12 +270,12 @@ class Request
             }
         } elseif ($this->method === 'POST') {
             if ($this->getIdentifier()) {
-                $action = 'updateItem';
+                $action = 'putItem';
             } else {
-                $action = 'addItem';
+                $action = 'postItem';
             }
         } elseif ($this->method === 'PUT') {
-            $action = 'updateItem';
+            $action = 'putItem';
         } elseif ($this->method === 'DELETE') {
             $action = 'deleteItem';
         }

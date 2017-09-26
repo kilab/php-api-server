@@ -4,6 +4,7 @@ namespace Kilab\Api;
 
 use ReflectionMethod;
 use Kilab\Api\Exception\ResourceNotFoundException;
+use Symfony\Component\HttpFoundation\JsonResponse;
 
 class Server
 {
@@ -25,24 +26,28 @@ class Server
 
     /**
      * Run server app.
-     *
      * @throws ResourceNotFoundException
      */
     public function run(): void
     {
         if ($this->request->getMethod() === 'OPTIONS' && $this->request->accessAllowed()) {
-            $response = new Response(['status' => true ]);
-            $response->return();
+            $response = new JsonResponse(['status' => true], 200, Config::get('Response.Headers'));
+            $response->send();
+            exit;
         }
 
         $resourceController = $this->defineControllerClass();
         $resourceControllerMethod = $this->defineControllerMethod();
 
         if (!class_exists($resourceController)) {
-            throw new ResourceNotFoundException('Resource \'' . $this->request->getResource() . '\' not found');
+            throw new ResourceNotFoundException(sprintf('Resource \'%s\' not found', $this->request->getResource()));
         }
         if (!method_exists($resourceController, $resourceControllerMethod)) {
-            throw new ResourceNotFoundException('Requested action not found in ' . $this->request->getResource() . ' resource');
+            throw new ResourceNotFoundException(sprintf(
+                'Action \'%s\' not found in \'%s\' resource',
+                $resourceControllerMethod,
+                $this->request->getResource()
+            ));
         }
 
         $methodParams = [];
@@ -54,13 +59,23 @@ class Server
             $methodParams[] = $this->request->getParameters();
         }
 
+        /** @var Controller $controller */
+        $controller = new $resourceController($this->request);
         $controllerMethod = new ReflectionMethod($resourceController, $resourceControllerMethod);
-        $controllerResponse = $controllerMethod->invokeArgs(new $resourceController, $methodParams);
+        $controllerMethod->invokeArgs($controller, $methodParams);
 
         $returnAsCallback = $this->request->getHeader('http_x_callback') ?? null;
 
-        $response = new Response($controllerResponse);
-        $response->return($returnAsCallback);
+        $response = new JsonResponse($controller->responseData,
+            $controller->responseCode,
+            Config::get('Response.Headers'));
+
+        if ($returnAsCallback) {
+            $response->setCallback($returnAsCallback);
+        }
+
+        $response->send();
+        exit;
     }
 
     /**
@@ -70,7 +85,10 @@ class Server
      */
     private function defineControllerClass(): string
     {
-        $resourceController = '\App\\' . ucfirst(API_VERSION) . '\\Controller\\' . ucfirst($this->request->getResource()) . 'Controller';
+        $resourceController = sprintf('\App\\%s\\Controller\\%sController',
+            ucfirst(API_VERSION),
+            ucfirst($this->request->getResource())
+        );
 
         return $resourceController;
     }

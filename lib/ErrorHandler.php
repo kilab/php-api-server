@@ -3,7 +3,7 @@
 namespace Kilab\Api;
 
 use Throwable;
-use Kilab\Api\Response\JsonResponse;
+use Symfony\Component\HttpFoundation\JsonResponse;
 
 class ErrorHandler
 {
@@ -36,7 +36,7 @@ class ErrorHandler
      * @param Throwable $e
      *
      * @return JsonResponse
-     * @throws \LogicException
+     * @throws \Swift_SwiftException
      */
     public function exceptionHandler(Throwable $e): JsonResponse
     {
@@ -55,13 +55,14 @@ class ErrorHandler
     /**
      * Handle interpreter error.
      *
-     * @param int $number
+     * @param int    $number
      * @param string $message
      * @param string $file
-     * @param int $line
+     * @param int    $line
      * @param        $context
      *
      * @return JsonResponse
+     * @throws \Swift_SwiftException
      */
     public function errorHandler(int $number, string $message, string $file, int $line, $context): JsonResponse
     {
@@ -77,7 +78,8 @@ class ErrorHandler
     /**
      * Handle interpreter fatal error.
      *
-     * @return JsonResponse|null
+     * @return null|JsonResponse
+     * @throws \Swift_SwiftException
      */
     public function fatalErrorHandler(): ?JsonResponse
     {
@@ -101,8 +103,10 @@ class ErrorHandler
      *
      * @param string $message
      * @param string $file
-     * @param int $line
+     * @param int    $line
      * @param        $trace
+     *
+     * @throws \Swift_SwiftException
      */
     public function logError(string $message, string $file, int $line, $trace = null): void
     {

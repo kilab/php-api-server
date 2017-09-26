@@ -2,7 +2,6 @@
 
 namespace Kilab\Api;
 
-use Exception;
 use Swift_SmtpTransport;
 use Swift_Mailer;
 use Swift_Message;
@@ -14,6 +13,8 @@ class Logger
      * Save given string to file.
      *
      * @param string $content
+     *
+     * @throws \Swift_SwiftException
      */
     public static function log(string $content): void
     {

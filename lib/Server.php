@@ -46,8 +46,8 @@ class Server
         if (!method_exists($entityController, $entityControllerMethod)) {
             throw new EntityNotFoundException(sprintf(
                 'Action \'%s\' not found in \'%s\' entity',
-                $entityController,
-                $this->request->getEntity()
+                $this->request->getEntity(),
+                $entityController
             ));
         }
 

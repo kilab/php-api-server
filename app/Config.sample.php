@@ -8,6 +8,7 @@ return [
         'User' => '',
         'Password' => '',
     ],
+    'Debug' => false,
     'Default' => [
         'Entity' => 'index',
     ],

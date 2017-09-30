@@ -43,7 +43,8 @@ class ErrorHandler
         $response = null;
 
         if (Config::get('Logger.Enabled')) {
-            $context = $this->prepareContext($e->getCode(), $e->getFile(), $e->getLine(), $e->getTrace(), $e->getTraceAsString());
+            $context = $this->prepareContext($e->getCode(), $e->getFile(), $e->getLine(), $e->getTrace(),
+                $e->getTraceAsString());
 
             Logger::instance()->error($e->getMessage(), $context);
         }
@@ -139,8 +140,13 @@ class ErrorHandler
      *
      * @return array
      */
-    private function prepareContext(int $code, string $file, int $line, array $trace = [], string $traceString = null): array
-    {
+    private function prepareContext(
+        int $code,
+        string $file,
+        int $line,
+        array $trace = [],
+        string $traceString = null
+    ): array {
         $kind = $this->getErrorLevelName($code);
 
         if ($kind === 'UNKNOWN ERROR' && !empty($trace)) {

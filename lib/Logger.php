@@ -117,8 +117,9 @@ class Logger extends AbstractLogger implements LoggerInterface
      *
      * @return bool
      */
-    private function writeStdOutput(string $message): bool {
-        fwrite(STDOUT, $message.PHP_EOL);
+    private function writeStdOutput(string $message): bool
+    {
+        fwrite(STDOUT, $message . PHP_EOL);
 
         return true;
     }

@@ -1,5 +1,13 @@
 # Changelog
 
+2017-10-16 (0.3.0):
+
+ - Added console commands (CLI) support
+ - Added database schema generator
+ - Added Illuminate Database (Eloquent) integration
+ - Removed Doctrine ORM
+ - Fixes in error handler
+
 2017-09-27 (0.2.0):
 
  - Doctrine ORM included

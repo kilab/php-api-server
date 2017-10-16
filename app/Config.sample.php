@@ -8,11 +8,14 @@ return [
         'User' => '',
         'Password' => '',
     ],
-    'Debug' => false,
-    'Default' => [
+    'Debug'    => true,
+    'Default'  => [
         'Entity' => 'index',
     ],
-    'Logger' => [
+    'Entity'   => [
+        'CamelCaseFieldNames' => true,
+    ],
+    'Logger'   => [
         'Enabled' => true,
         'Mail' => [
             'Enabled' => false,
@@ -32,5 +35,5 @@ return [
             'Access-Control-Allow-Origin' => '*',
             'Vary' => '',
         ]
-    ]
+    ],
 ];

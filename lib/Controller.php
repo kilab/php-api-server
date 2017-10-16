@@ -2,25 +2,31 @@
 
 namespace Kilab\Api;
 
-use Doctrine\Common\Inflector\Inflector;
+use Illuminate\Database\Eloquent\Model;
 use Kilab\Api\Exception\EntityNotFoundException;
-use JMS\Serializer\SerializerBuilder;
 use Symfony\Component\HttpFoundation\Response;
 
 class Controller
 {
 
     /**
-     * Incming request object.
+     * Repository Entity name.
+     *
+     * @var string
+     */
+    protected $entityName;
+
+    /**
+     * Incoming request object.
      *
      * @var Request
      */
     protected $request;
 
     /**
-     * Patient repository.
+     * Entity repository.
      *
-     * @var \Doctrine\ORM\EntityRepository
+     * @var Model
      */
     protected $repository;
 
@@ -29,7 +35,7 @@ class Controller
      *
      * @var mixed
      */
-    public $responseData = null;
+    public $responseData;
 
     /**
      * HTTP status code for response.
@@ -45,22 +51,18 @@ class Controller
      */
     public function __construct(Request $request)
     {
+
         $this->request = $request;
+        $entityClassName = explode('\\', get_class($this->repository->getModel()));
+        $this->entityName = end($entityClassName);
     }
 
     /**
      * Get list of entities.
      */
-    public function getListAction()
+    public function getListAction(): void
     {
-        $entities = $this->repository->findAll();
-        $plainEntities = [];
-
-        foreach ($entities as $entity) {
-            $plainEntities[] = $this->serializeToArray($entity->getWholeEntity());
-        }
-
-        $this->responseData = $plainEntities;
+        $this->responseData = $this->repository->get()->toArray();
     }
 
     /**
@@ -69,24 +71,23 @@ class Controller
      * @param int $id
      *
      * @throws EntityNotFoundException
-     * @throws \Doctrine\ORM\ORMException
-     * @throws \Doctrine\ORM\OptimisticLockException
-     * @throws \Doctrine\ORM\TransactionRequiredException
+     * @throws \LogicException
      */
-    public function getItemAction(int $id)
+    public function getItemAction(int $id): void
     {
         $entity = $this->repository->find($id);
 
         if ($entity === null) {
-            $repositoryClassName = explode('\\', $this->repository->getClassName());
-
-            throw new EntityNotFoundException(sprintf('%s record for ID: %s not found',
-                end($repositoryClassName),
-                $id
-            ));
+            throw new EntityNotFoundException(sprintf('%s record for ID: %s not found', $this->entityName, $id));
         }
 
-        $this->responseData = $this->serializeToArray($entity);
+        $entityData = $entity->toArray();
+
+        if (Config::get('Entity.CamelCaseFieldNames')) {
+            $entityData = $this->toCamelCase($entityData);
+        }
+
+        $this->responseData = $entityData;
     }
 
     /**
@@ -94,24 +95,17 @@ class Controller
      *
      * @param array $data
      *
-     * @throws \Doctrine\ORM\ORMException
-     * @throws \Doctrine\ORM\OptimisticLockException
+     * @throws \LogicException
      */
-    public function postItemAction(array $data)
+    public function postItemAction(array $data): void
     {
-        $entityClassName = sprintf('\App\\%s\\Entity\\%s',
-            API_VERSION,
-            ucfirst(Inflector::singularize($this->request->getEntity()))
-        );
+        if (Config::get('Entity.CamelCaseFieldNames')) {
+            $data = $this->toSnakeCase($data);
+        }
 
-        $entity = new $entityClassName();
-        $entity->setWholeEntity($data);
+        $entity = $this->repository->create($data);
 
-        $em = Db::instance();
-        $em->persist($entity);
-        $em->flush();
-
-        $this->responseData = $this->serializeToArray($entity);
+        $this->responseData = $entity;
         $this->responseCode = Response::HTTP_CREATED;
     }
 
@@ -122,29 +116,23 @@ class Controller
      * @param array $data
      *
      * @throws EntityNotFoundException
-     * @throws \Doctrine\ORM\ORMException
-     * @throws \Doctrine\ORM\OptimisticLockException
-     * @throws \Doctrine\ORM\TransactionRequiredException
+     * @throws \LogicException
      */
-    public function putItemAction(int $id, array $data)
+    public function putItemAction(int $id, array $data): void
     {
-        $em = Db::instance();
-        $entity = $em->getRepository($this->repository->getClassName())->find($id);
-
-        if ($entity === null) {
-            $repositoryClassName = explode('\\', $this->repository->getClassName());
-
-            throw new EntityNotFoundException(sprintf('%s record for ID: %s not found',
-                end($repositoryClassName),
-                $id
-            ));
+        if (Config::get('Entity.CamelCaseFieldNames')) {
+            $data = $this->toSnakeCase($data);
         }
 
-        $entity->setWholeEntity($data);
+        $entity = $this->repository->find($id);
 
-        $em->flush();
+        if ($entity === null) {
+            throw new EntityNotFoundException(sprintf('%s record for ID: %s not found', $this->entityName, $id));
+        }
 
-        $this->responseData = $this->serializeToArray($entity);
+        $entity->update($data);
+
+        $this->responseData = $entity;
         $this->responseCode = Response::HTTP_OK;
     }
 
@@ -154,47 +142,55 @@ class Controller
      * @param int $id
      *
      * @throws EntityNotFoundException
-     * @throws \Doctrine\Common\Persistence\Mapping\MappingException
-     * @throws \Doctrine\ORM\ORMException
-     * @throws \Doctrine\ORM\OptimisticLockException
-     * @throws \Doctrine\ORM\TransactionRequiredException
      * @throws \ReflectionException
+     * @throws \Exception
      */
-    public function deleteItemAction(int $id)
+    public function deleteItemAction(int $id): void
     {
         $entity = $this->repository->find($id);
 
         if ($entity === null) {
-            $repositoryClassName = explode('\\', $this->repository->getClassName());
-
-            throw new EntityNotFoundException(sprintf('%s record for ID: %s not found',
-                end($repositoryClassName),
-                $id
-            ));
+            throw new EntityNotFoundException(sprintf('%s record for ID: %s not found', $this->entityName, $id));
         }
 
-        $em = Db::instance();
-
-        $entityRef = $em->getReference($this->repository->getClassName(), $id);
-
-        $em->remove($entityRef);
-        $em->flush();
+        $entity->delete();
 
         $this->responseCode = Response::HTTP_NO_CONTENT;
     }
 
     /**
-     * Serialize entity object to array.
+     * Convert entity fields to camelCase notation.
      *
-     * @param $entity
+     * @param array $entity
      *
      * @return array
      */
-    protected function serializeToArray($entity): array
+    protected function toCamelCase(array $entity): array
     {
-        $serializer = SerializerBuilder::create()->build();
+        $convertedEntity = [];
 
-        return $serializer->toArray($entity);
+        foreach ($entity as $field => $value) {
+            $convertedEntity[camel_case($field)] = $value;
+        }
+
+        return $convertedEntity;
     }
 
+    /**
+     * Convert entity fields to snake_case notation.
+     *
+     * @param array $entity
+     *
+     * @return array
+     */
+    protected function toSnakeCase(array $entity): array
+    {
+        $convertedEntity = [];
+
+        foreach ($entity as $field => $value) {
+            $convertedEntity[snake_case($field)] = $value;
+        }
+
+        return $convertedEntity;
+    }
 }

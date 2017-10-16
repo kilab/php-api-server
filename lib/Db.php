@@ -2,26 +2,34 @@
 
 namespace Kilab\Api;
 
-use Doctrine\ORM\Tools\Setup;
-use Doctrine\ORM\EntityManager;
+use Illuminate\Database\Capsule\Manager as Capsule;
+use Illuminate\Database\Query\Builder;
 
-class Db
+class Db extends Builder
 {
-    public static function instance(): EntityManager
+    private static $classInstance;
+
+    /**
+     * @return Capsule
+     * @throws \LogicException
+     */
+    public static function instance(): Capsule
     {
-        $devMode = Env::get('ENVIRONMENT') === 'dev';
-        $entitiesDir = BASE_DIR . '/app/' . API_VERSION . '/Model';
+        if (!self::$classInstance) {
+            self::$classInstance = new Capsule();
 
-        $config = Setup::createAnnotationMetadataConfiguration([$entitiesDir], $devMode, null, null, false);
+            self::$classInstance->addConnection([
+                'driver'   => Config::get('Database.Driver'),
+                'host'     => Config::get('Database.Host'),
+                'database' => Config::get('Database.Name'),
+                'username' => Config::get('Database.User'),
+                'password' => Config::get('Database.Password'),
+            ]);
 
-        $connectionSettings = [
-            'driver'   => Config::get('Database.Driver'),
-            'host'     => Config::get('Database.Host'),
-            'dbname'   => Config::get('Database.Name'),
-            'user'     => Config::get('Database.User'),
-            'password' => Config::get('Database.Password'),
-        ];
+            self::$classInstance->setAsGlobal();
+            self::$classInstance->bootEloquent();
+        }
 
-        return EntityManager::create($connectionSettings, $config);
+        return self::$classInstance;
     }
 }

@@ -17,6 +17,7 @@ $loader = require BASE_DIR . 'vendor/autoload.php';
 
 $errorHandler = new Kilab\Api\ErrorHandler($requestServerInfo);
 $request = new Kilab\Api\Request($requestServerInfo);
+$database = Kilab\Api\Db::instance();
 
 // run server
 $apiServer = new Kilab\Api\Server($request);

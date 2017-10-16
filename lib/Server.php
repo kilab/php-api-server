@@ -2,8 +2,8 @@
 
 namespace Kilab\Api;
 
-use ReflectionMethod;
 use Kilab\Api\Exception\EntityNotFoundException;
+use ReflectionMethod;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
 class Server
@@ -28,6 +28,9 @@ class Server
      * Run server app.
      *
      * @throws EntityNotFoundException
+     * @throws \LogicException
+     * @throws \ReflectionException
+     * @throws \InvalidArgumentException
      */
     public function run(): void
     {
@@ -41,7 +44,7 @@ class Server
         $entityControllerMethod = $this->defineControllerMethod();
 
         if (!class_exists($entityController)) {
-            throw new EntityNotFoundException(sprintf('Entity \'%s\' not found', $this->request->getEntity()));
+            throw new EntityNotFoundException(sprintf("Entity controller '%s' not found", $this->request->getEntity()));
         }
         if (!method_exists($entityController, $entityControllerMethod)) {
             throw new EntityNotFoundException(sprintf(

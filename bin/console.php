@@ -15,7 +15,7 @@ if (!isset($params['command'])) {
     Console::fatal('Missing command parameter. You have to specify command to execute as second parameter.');
 }
 
-$className = 'Kilab\Api\Command\\Db\\' . ucfirst($params['command']);
+$className = 'Kilab\Api\Command\\' . ucfirst($params['command']);
 
 if (!class_exists($className)) {
     Console::fatal('Unknown command "' . $params['command'] . '". Please correct command name and try again.');
@@ -28,7 +28,7 @@ $commandClass = new $className;
 
 if (isset($params['operation'])) {
     $operation = $params['operation'];
-    $commandClass->{$operation}();
+    $commandClass->{$operation}($params);
 } else {
-    $commandClass->execute();
+    $commandClass->execute($params);
 }

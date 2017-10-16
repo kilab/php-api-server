@@ -1,0 +1,19 @@
+<?php
+
+namespace App\{apiVersion}\Controller;
+
+use App\{apiVersion}\Entity\{entityName};
+use Kilab\Api\Controller;
+use Kilab\Api\Request;
+
+class {controllerName}Controller extends Controller
+{
+
+    public function __construct(Request $request)
+    {
+        $this->repository = {entityName}::query();
+
+        parent::__construct($request);
+    }
+
+}

@@ -1,0 +1,38 @@
+<?php
+
+namespace App\{apiVersion}\Entity\Schema;
+
+use Illuminate\Database\Schema\Blueprint;
+
+class {entityName}
+{
+
+    /**
+     * Entity structure object.
+     *
+     * @var Blueprint
+     */
+    public $structure;
+
+    /**
+     * Foreign keys.
+     *
+     * @var array
+     */
+    public $foreigns = [];
+
+    /**
+     * {entityName} entity structure.
+     */
+    public function __construct()
+    {
+        $table = new Blueprint('{entityTable}');
+
+        $table->increments('id');
+        $table->timestamp('updated_at');
+        $table->timestamp('created_at')->useCurrent();
+
+        $this->structure = $table;
+    }
+
+}

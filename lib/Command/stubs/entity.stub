@@ -1,0 +1,11 @@
+<?php
+
+namespace App\{apiVersion}\Entity;
+
+use Illuminate\Database\Eloquent\Model;
+
+class {entityName} extends Model
+{
+    protected $fillable = [];
+
+}

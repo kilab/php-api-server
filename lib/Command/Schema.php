@@ -34,7 +34,7 @@ class Schema
         Console::write('.' . PHP_EOL . PHP_EOL);
 
         Console::write('Example command call: ');
-        Console::write('php bin/db.php schema update --version=1', 'yellow');
+        Console::write('php bin/console.php schema update --version=1', 'yellow');
     }
 
     /**

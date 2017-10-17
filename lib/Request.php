@@ -11,7 +11,7 @@ class Request
      *
      * @var array
      */
-    private $serverInfo = [];
+    private $serverInfo;
 
     /**
      * HTTP method.
@@ -49,6 +49,13 @@ class Request
     private $identifier;
 
     /**
+     * Current entity relation to include.
+     *
+     * @var string
+     */
+    private $relation;
+
+    /**
      * URI path in given request.
      *
      * @var string
@@ -59,6 +66,8 @@ class Request
      * Request constructor.
      *
      * @param array $serverInfo
+     *
+     * @throws \LogicException
      */
     public function __construct(array $serverInfo)
     {
@@ -83,6 +92,7 @@ class Request
 
     /**
      * Set HTTP request method.
+     * @throws \LogicException
      */
     private function setMethod(): void
     {
@@ -92,7 +102,7 @@ class Request
             $methodOverride = strtoupper($this->serverInfo['HTTP_X_HTTP_METHOD_OVERRIDE']);
             $allowedMethods = explode(', ', Config::get('Response.Headers.Access-Control-Allow-Methods'));
 
-            if (in_array($methodOverride, $allowedMethods)) {
+            if (in_array($methodOverride, $allowedMethods, true)) {
                 $httpMethod = $methodOverride;
             }
         }
@@ -127,11 +137,11 @@ class Request
      */
     private function setParameters(): void
     {
-        $requestContent = file_get_contents("php://input");
+        $requestContent = file_get_contents('php://input');
         $parameters = [];
 
         if ($requestContent) {
-            $parameters = (array)json_decode(file_get_contents("php://input"), true);
+            $parameters = (array)json_decode(file_get_contents('php://input'), true);
         }
 
         $this->parameters = $parameters;
@@ -149,6 +159,7 @@ class Request
 
     /**
      * Set request entity name.
+     * @throws \LogicException
      */
     private function setEntity(): void
     {
@@ -208,6 +219,26 @@ class Request
     }
 
     /**
+     * Get entity relation name.
+     *
+     * @return string
+     */
+    public function getRelation(): ?string
+    {
+        return $this->relation;
+    }
+
+    /**
+     * Set entity relation name.
+     *
+     * @param string $relation
+     */
+    public function setRelation(string $relation): void
+    {
+        $this->relation = $relation;
+    }
+
+    /**
      * Get value from HTTP header.
      *
      * @param string $key
@@ -229,6 +260,7 @@ class Request
      * Determine whether current CORS request is allowed.
      *
      * @return bool
+     * @throws \LogicException
      */
     public function accessAllowed(): bool
     {
@@ -263,16 +295,16 @@ class Request
         }
 
         if ($this->method === 'GET') {
+            $action = 'getList';
+
             if ($this->getIdentifier()) {
                 $action = 'getItem';
-            } else {
-                $action = 'getList';
             }
         } elseif ($this->method === 'POST') {
+            $action = 'postItem';
+
             if ($this->getIdentifier()) {
                 $action = 'putItem';
-            } else {
-                $action = 'postItem';
             }
         } elseif ($this->method === 'PUT') {
             $action = 'putItem';

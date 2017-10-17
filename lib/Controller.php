@@ -59,21 +59,30 @@ class Controller
 
     /**
      * Get list of entities.
+     *
+     * @throws \LogicException
      */
     public function getListAction(): void
     {
-        $this->responseData = $this->repository->get()->toArray();
+        $entities = $this->repository->get()->toArray();
+
+        if (Config::get('Entity.CamelCaseFieldNames')) {
+            $entities = $this->toCamelCase($entities);
+        }
+
+        $this->responseData = $entities;
     }
 
     /**
      * Get entity details.
      *
-     * @param int $id
+     * @param int         $id
+     * @param string|null $relation
      *
      * @throws EntityNotFoundException
      * @throws \LogicException
      */
-    public function getItemAction(int $id): void
+    public function getItemAction(int $id, string $relation = null): void
     {
         $entity = $this->repository->find($id);
 
@@ -82,6 +91,16 @@ class Controller
         }
 
         $entityData = $entity->toArray();
+
+        if ($relation) {
+            $relationData = $entity->{$relation}->toArray();
+
+            if (Config::get('Entity.CamelCaseFieldNames')) {
+                $relationData = $this->toCamelCase($relationData);
+            }
+
+            $entityData[$relation] = $relationData;
+        }
 
         if (Config::get('Entity.CamelCaseFieldNames')) {
             $entityData = $this->toCamelCase($entityData);
@@ -169,8 +188,14 @@ class Controller
     {
         $convertedEntity = [];
 
-        foreach ($entity as $field => $value) {
-            $convertedEntity[camel_case($field)] = $value;
+        if (is_array(current($entity))) {
+            foreach ($entity as $ent) {
+                $convertedEntity[] = $this->toCamelCase($ent);
+            }
+        } else {
+            foreach ($entity as $field => $value) {
+                $convertedEntity[camel_case($field)] = $value;
+            }
         }
 
         return $convertedEntity;
@@ -187,8 +212,14 @@ class Controller
     {
         $convertedEntity = [];
 
-        foreach ($entity as $field => $value) {
-            $convertedEntity[snake_case($field)] = $value;
+        if (is_array(current($entity))) {
+            foreach ($entity as $ent) {
+                $convertedEntity[] = $this->toSnakeCase($ent);
+            }
+        } else {
+            foreach ($entity as $field => $value) {
+                $convertedEntity[snake_case($field)] = $value;
+            }
         }
 
         return $convertedEntity;

@@ -3,6 +3,7 @@
 namespace Kilab\Api;
 
 use Kilab\Api\Exception\EntityNotFoundException;
+use ReflectionClass;
 use ReflectionMethod;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
@@ -62,6 +63,9 @@ class Server
         if ($this->request->getParameters()) {
             $methodParams[] = $this->request->getParameters();
         }
+        if ($this->request->getRelation()) {
+            $methodParams[] = $this->request->getRelation();
+        }
 
         /** @var Controller $controller */
         $controller = new $entityController($this->request);
@@ -103,9 +107,24 @@ class Server
      * Define method for given request.
      *
      * @return string
+     * @throws \ReflectionException
      */
     private function defineControllerMethod(): string
     {
+        // check if relationship exists in entity
+        if ($this->request->getMethod() === 'GET') {
+            $entityName = str_singular(ucfirst($this->request->getEntity()));
+            $relationship = strtolower(ltrim($this->request->getAction(), 'get'));
+
+            $reflectionClass = new ReflectionClass('\App\\' . ucfirst(API_VERSION) . '\Entity\\' . $entityName);
+
+            if ($reflectionClass->hasMethod($relationship)) {
+                $this->request->setRelation($relationship);
+                
+                return 'getItemAction';
+            }
+        }
+
         return ucfirst($this->request->getAction()) . 'Action';
     }
 

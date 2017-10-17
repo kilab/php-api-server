@@ -50,7 +50,7 @@ class Server
         if (!method_exists($entityController, $entityControllerMethod)) {
             throw new EntityNotFoundException(sprintf(
                 'Action \'%s\' not found in \'%s\' entity',
-                $this->request->getEntity(),
+                $entityControllerMethod,
                 $entityController
             ));
         }
@@ -120,7 +120,7 @@ class Server
 
             if ($reflectionClass->hasMethod($relationship)) {
                 $this->request->setRelation($relationship);
-                
+
                 return 'getItemAction';
             }
         }

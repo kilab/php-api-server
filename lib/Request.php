@@ -72,7 +72,7 @@ class Request
     public function __construct(array $serverInfo)
     {
         $this->serverInfo = $serverInfo;
-        $this->uriPath = isset($this->serverInfo['PATH_INFO']) ? rtrim($this->serverInfo['PATH_INFO'], '/') : null;
+        $this->uriPath = isset($this->serverInfo['REQUEST_URI']) ? rtrim($this->serverInfo['REQUEST_URI'], '/') : null;
 
         $this->setMethod();
         $this->setParameters();

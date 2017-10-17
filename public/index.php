@@ -5,7 +5,7 @@ const BASE_DIR = __DIR__ . '/../';
 $requestServerInfo = $_SERVER;
 
 // determine API version to load
-preg_match('/v\d/i', $requestServerInfo['PATH_INFO'], $matches);
+preg_match('/v\d/i', $requestServerInfo['REQUEST_URI'], $matches);
 
 if (!empty($matches)) {
     define('API_VERSION', strtolower($matches[0]));

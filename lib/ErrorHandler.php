@@ -7,22 +7,12 @@ use Throwable;
 
 class ErrorHandler
 {
-    /**
-     * $_SERVER superglobal array content.
-     *
-     * @var array
-     */
-    private $serverInfo = [];
 
     /**
      * ErrorHandler constructor.
-     *
-     * @param array $serverInfo
      */
-    public function __construct(array $serverInfo)
+    public function __construct()
     {
-        $this->serverInfo = $serverInfo;
-
         set_exception_handler([$this, 'exceptionHandler']);
         set_error_handler([$this, 'errorHandler']);
         register_shutdown_function([$this, 'shutdownHandler']);
@@ -33,13 +23,13 @@ class ErrorHandler
      *
      * @param Throwable $e
      *
-     * @return null|JsonResponse
      * @throws \Swift_SwiftException
+     * @throws \LogicException
      */
-    public function exceptionHandler(Throwable $e): ?JsonResponse
+    public function exceptionHandler(Throwable $e): void
     {
         $validHttpcodes = ['200', '201', '202', '204', '302', '304', '400', '401', '403', '404', '406', '500'];
-        $jsonResponseCode = ($e->getCode() > 0 && in_array($e->getCode(), $validHttpcodes)) ? $e->getCode() : 500;
+        $jsonResponseCode = ($e->getCode() > 0 && in_array($e->getCode(), $validHttpcodes, true)) ? $e->getCode() : 500;
         $response = null;
 
         if (Config::get('Logger.Enabled')) {
@@ -49,10 +39,9 @@ class ErrorHandler
             Logger::instance()->error($e->getMessage(), $context);
         }
 
-        if (Config::get('Debug') === false) {
-            $response = new JsonResponse(['status' => false, 'msg' => $e->getMessage()], $jsonResponseCode);
-        } else {
-            die(sprintf("[%s][%03d][EXCEPTION]: %s in %s line %d",
+        if (Config::get('Debug') === true) {
+            echo 'zzz';
+            die(sprintf('[%s][%03d][EXCEPTION]: %s in %s line %d',
                 date('H:i:s'),
                 $e->getCode(),
                 $e->getMessage(),
@@ -61,7 +50,10 @@ class ErrorHandler
             ));
         }
 
-        return $response;
+        $response = new JsonResponse(['status' => false, 'msg' => $e->getMessage()], $jsonResponseCode);
+        $response->setEncodingOptions(JSON_UNESCAPED_UNICODE);
+        $response->send();
+        exit(1);
     }
 
     /**
@@ -74,6 +66,7 @@ class ErrorHandler
      * @param        $context
      *
      * @throws \Swift_SwiftException
+     * @throws \LogicException
      */
     public function errorHandler(int $number, string $message, string $file, int $line, $context): void
     {
@@ -83,10 +76,8 @@ class ErrorHandler
             Logger::instance()->error($message, $contextData);
         }
 
-        if (Config::get('Debug') === false) {
-            new JsonResponse(['status' => false, 'msg' => $message], 500);
-        } else {
-            die(sprintf("[%s][%03d][%s]: %s in %s line %d",
+        if (Config::get('Debug') === true) {
+            die(sprintf('[%s][%03d][%s]: %s in %s line %d',
                 date('H:i:s'),
                 $number,
                 $this->getErrorLevelName($number),
@@ -95,13 +86,18 @@ class ErrorHandler
                 $line
             ));
         }
-        die;
+
+        $response = new JsonResponse(['status' => false, 'msg' => $message], 500);
+        $response->setEncodingOptions(JSON_UNESCAPED_UNICODE);
+        $response->send();
+        exit(1);
     }
 
     /**
      * Handle interpreter fatal error.
      *
      * @throws \Swift_SwiftException
+     * @throws \LogicException
      */
     public function shutdownHandler(): void
     {
@@ -114,10 +110,8 @@ class ErrorHandler
                 Logger::instance()->error($error['message'], $contextData);
             }
 
-            if (Config::get('Debug') === false) {
-                new JsonResponse(['status' => false, 'msg' => $error['message']], 500);
-            } else {
-                die(sprintf("[%s][%03d][%s]: %s in %s line %d",
+            if (Config::get('Debug') === true) {
+                die(sprintf('[%s][%03d][%s]: %s in %s line %d',
                     date('H:i:s'),
                     $error['type'],
                     $this->getErrorLevelName($error['type']),
@@ -126,6 +120,11 @@ class ErrorHandler
                     $error['line']
                 ));
             }
+
+            $response = new JsonResponse(['status' => false, 'msg' => $error['message']], 500);
+            $response->setEncodingOptions(JSON_UNESCAPED_UNICODE);
+            $response->send();
+            exit(1);
         }
     }
 

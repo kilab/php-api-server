@@ -28,7 +28,7 @@ class ErrorHandler
      */
     public function exceptionHandler(Throwable $e): void
     {
-        $validHttpcodes = ['200', '201', '202', '204', '302', '304', '400', '401', '403', '404', '406', '500'];
+        $validHttpcodes = [200, 201, 202, 204, 302, 304, 400, 401, 403, 404, 406, 500];
         $jsonResponseCode = ($e->getCode() > 0 && in_array($e->getCode(), $validHttpcodes, true)) ? $e->getCode() : 500;
         $response = null;
 
@@ -40,7 +40,6 @@ class ErrorHandler
         }
 
         if (Config::get('Debug') === true) {
-            echo 'zzz';
             die(sprintf('[%s][%03d][EXCEPTION]: %s in %s line %d',
                 date('H:i:s'),
                 $e->getCode(),

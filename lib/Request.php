@@ -300,6 +300,9 @@ class Request
             if ($this->getIdentifier()) {
                 $action = 'getItem';
             }
+            if (isset($actionPath[1])) {
+                $action = $actionPath[1];
+            }
         } elseif ($this->method === 'POST') {
             $action = 'postItem';
 

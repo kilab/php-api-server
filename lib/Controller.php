@@ -51,10 +51,12 @@ class Controller
      */
     public function __construct(Request $request)
     {
-
         $this->request = $request;
-        $entityClassName = explode('\\', get_class($this->repository->getModel()));
-        $this->entityName = end($entityClassName);
+
+        if ($this->repository) {
+            $entityClassName = explode('\\', get_class($this->repository->getModel()));
+            $this->entityName = end($entityClassName);
+        }
     }
 
     /**

@@ -48,11 +48,7 @@ class Server
             throw new EntityNotFoundException(sprintf("Entity controller '%s' not found", $this->request->getEntity()));
         }
         if (!method_exists($entityController, $entityControllerMethod)) {
-            throw new EntityNotFoundException(sprintf(
-                'Action \'%s\' not found in \'%s\' entity',
-                $entityControllerMethod,
-                $entityController
-            ));
+            throw new EntityNotFoundException(sprintf('Action \'%s\' not found', $entityControllerMethod));
         }
 
         $methodParams = [];
@@ -115,13 +111,16 @@ class Server
         if ($this->request->getMethod() === 'GET') {
             $entityName = str_singular(ucfirst($this->request->getEntity()));
             $relationship = strtolower(ltrim($this->request->getAction(), 'get'));
+            $className = '\App\\' . ucfirst(API_VERSION) . '\Entity\\' . $entityName;
 
-            $reflectionClass = new ReflectionClass('\App\\' . ucfirst(API_VERSION) . '\Entity\\' . $entityName);
+            if (class_exists($className)) {
+                $reflectionClass = new ReflectionClass('\App\\' . ucfirst(API_VERSION) . '\Entity\\' . $entityName);
 
-            if ($reflectionClass->hasMethod($relationship)) {
-                $this->request->setRelation($relationship);
+                if ($reflectionClass->hasMethod($relationship)) {
+                    $this->request->setRelation($relationship);
 
-                return 'getItemAction';
+                    return 'getItemAction';
+                }
             }
         }
 

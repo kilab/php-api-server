@@ -10,7 +10,7 @@ return [
     ],
     'Debug'    => true,
     'Default'  => [
-        'Entity' => 'index',
+        'Entity' => 'info',
     ],
     'Entity'   => [
         'CamelCaseFieldNames' => true,

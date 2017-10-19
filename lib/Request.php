@@ -175,6 +175,9 @@ class Request
             }
 
             $entityName = $entityPath[0];
+        } else {
+            header('Location: /' . API_VERSION . '/' . $entityName);
+            exit(0);
         }
 
         $this->entity = $entityName;

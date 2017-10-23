@@ -1,5 +1,15 @@
 # Changelog
 
+2017-10-23 (0.4.0):
+  - Added file generator
+  - Added temporary info endpoint as default endpoint
+  - Added redirect to default endpoint if is not specified
+  - Added support to custom actions in endpoints
+  - Added basic support to entity relations
+  - Improved NGINX support and errors in production env
+  - Refactored: Request class replaced by Symfony Request
+  - Refactored: /bin/db.php to /bin/console.php
+
 2017-10-16 (0.3.0):
 
  - Added console commands (CLI) support

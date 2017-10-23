@@ -1,5 +1,9 @@
 # Changelog
 
+2017-10-23 (0.5.0):
+  - Added PHPUnit as composer dev dependency
+  - **Removed API versioning**
+
 2017-10-23 (0.4.0):
   - Added file generator
   - Added temporary info endpoint as default endpoint

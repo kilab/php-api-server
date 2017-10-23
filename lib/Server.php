@@ -56,8 +56,8 @@ class Server
         if ($this->request->getIdentifier()) {
             $methodParams[] = $this->request->getIdentifier();
         }
-        if ($this->request->getParameters()) {
-            $methodParams[] = $this->request->getParameters();
+        if ($this->request->query->all()) {
+            $methodParams[] = $this->request->query->all();
         }
         if ($this->request->getRelation()) {
             $methodParams[] = $this->request->getRelation();
@@ -68,7 +68,7 @@ class Server
         $controllerMethod = new ReflectionMethod($entityController, $entityControllerMethod);
         $controllerMethod->invokeArgs($controller, $methodParams);
 
-        $returnAsCallback = $this->request->getHeader('http_x_callback') ?? null;
+        $returnAsCallback = $this->request->headers->get('http_x_callback') ?? null;
 
         $response = new JsonResponse(
             ['status' => true, 'results' => $controller->responseData],

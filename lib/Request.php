@@ -2,150 +2,66 @@
 
 namespace Kilab\Api;
 
+use Symfony\Component\HttpFoundation\Request as SymfonyRequest;
 
-class Request
+class Request extends SymfonyRequest
 {
-
-    /**
-     * $_SERVER superglobal array content.
-     *
-     * @var array
-     */
-    private $serverInfo;
-
-    /**
-     * HTTP method.
-     *
-     * @var string
-     */
-    private $method;
-
-    /**
-     * Request parameters depending on HTTP method ($_GET or $_POST data).
-     *
-     * @var array
-     */
-    private $parameters;
 
     /**
      * The name of the desired entity.
      *
      * @var string
      */
-    private $entity;
+    protected $entity;
 
     /**
      * The name of desired entity action to call.
      *
      * @var string
      */
-    private $action;
+    protected $action;
 
     /**
      * Element ID of the desired entity.
      *
      * @var int
      */
-    private $identifier;
+    protected $identifier;
 
     /**
      * Current entity relation to include.
      *
      * @var string
      */
-    private $relation;
-
-    /**
-     * URI path in given request.
-     *
-     * @var string
-     */
-    private $uriPath;
+    protected $relation;
 
     /**
      * Request constructor.
      *
+     * @param array $get
+     * @param array $post
+     * @param array $attr
+     * @param array $cookie
+     * @param array $files
      * @param array $serverInfo
      *
      * @throws \LogicException
      */
-    public function __construct(array $serverInfo)
+    public function __construct($get, $post, $attr, $cookie, $files, $serverInfo)
     {
-        $this->serverInfo = $serverInfo;
-        $this->uriPath = isset($this->serverInfo['REQUEST_URI']) ? rtrim($this->serverInfo['REQUEST_URI'], '/') : null;
+        $content = file_get_contents('php://input');
 
-        $this->setMethod();
-        $this->setParameters();
+        parent::__construct($get, $post, [], $cookie, $files, $serverInfo, $content);
+        parent::enableHttpMethodParameterOverride();
+
+        if ($this->headers->get('Content-Type') === 'application/json') {
+            $this->request->replace(json_decode($content, true));
+        }
+
         $this->setEntity();
         $this->setAction();
     }
 
-    /**
-     * Get HTTP request method.
-     *
-     * @return string
-     */
-    public function getMethod(): string
-    {
-        return $this->method;
-    }
-
-    /**
-     * Set HTTP request method.
-     * @throws \LogicException
-     */
-    private function setMethod(): void
-    {
-        $httpMethod = $this->serverInfo['REQUEST_METHOD'];
-
-        if (isset($this->serverInfo['HTTP_X_HTTP_METHOD_OVERRIDE'])) {
-            $methodOverride = strtoupper($this->serverInfo['HTTP_X_HTTP_METHOD_OVERRIDE']);
-            $allowedMethods = explode(', ', Config::get('Response.Headers.Access-Control-Allow-Methods'));
-
-            if (in_array($methodOverride, $allowedMethods, true)) {
-                $httpMethod = $methodOverride;
-            }
-        }
-
-        $this->method = $httpMethod;
-    }
-
-    /**
-     * Get all request parameters.
-     *
-     * @return array
-     */
-    public function getParameters(): array
-    {
-        return $this->parameters;
-    }
-
-    /**
-     * Get request parameter by his name.
-     *
-     * @param string $key
-     *
-     * @return mixed|null
-     */
-    public function getParameter(string $key)
-    {
-        return $this->parameters[$key] ?? null;
-    }
-
-    /**
-     * Set request parameters.
-     */
-    private function setParameters(): void
-    {
-        $requestContent = file_get_contents('php://input');
-        $parameters = [];
-
-        if ($requestContent) {
-            $parameters = (array)json_decode(file_get_contents('php://input'), true);
-        }
-
-        $this->parameters = $parameters;
-    }
 
     /**
      * Return entity name.
@@ -159,12 +75,13 @@ class Request
 
     /**
      * Set request entity name.
+     *
      * @throws \LogicException
      */
     private function setEntity(): void
     {
         $entityName = Config::get('Default.Entity');
-        $entityPath = explode('/', $this->uriPath);
+        $entityPath = explode('/', $this->getPathInfo());
 
         unset($entityPath[0], $entityPath[1]);
         $entityPath = array_values($entityPath);
@@ -242,24 +159,6 @@ class Request
     }
 
     /**
-     * Get value from HTTP header.
-     *
-     * @param string $key
-     *
-     * @return mixed|null
-     */
-    public function getHeader(string $key)
-    {
-        $value = null;
-
-        if (isset($this->serverInfo[strtoupper($key)])) {
-            $value = $this->serverInfo[strtoupper($key)];
-        }
-
-        return $value;
-    }
-
-    /**
      * Determine whether current CORS request is allowed.
      *
      * @return bool
@@ -288,7 +187,7 @@ class Request
     private function determineEntityAction(): string
     {
         $action = '';
-        $actionPath = explode('/', $this->uriPath);
+        $actionPath = explode('/', $this->getPathInfo());
 
         unset($actionPath[0], $actionPath[1]);
         $actionPath = array_values($actionPath);
@@ -297,24 +196,23 @@ class Request
             return strtolower($this->method) . str_replace('-', '', ucwords($actionPath[2], '-'));
         }
 
-        if ($this->method === 'GET') {
+        if ($this->getMethod() === 'GET') {
             $action = 'getList';
 
             if ($this->getIdentifier()) {
                 $action = 'getItem';
-            }
-            if (isset($actionPath[1])) {
+            } elseif (isset($actionPath[1])) {
                 $action = $actionPath[1];
             }
-        } elseif ($this->method === 'POST') {
+        } elseif ($this->getMethod() === 'POST') {
             $action = 'postItem';
 
             if ($this->getIdentifier()) {
                 $action = 'putItem';
             }
-        } elseif ($this->method === 'PUT') {
+        } elseif ($this->getMethod() === 'PUT') {
             $action = 'putItem';
-        } elseif ($this->method === 'DELETE') {
+        } elseif ($this->getMethod() === 'DELETE') {
             $action = 'deleteItem';
         }
 

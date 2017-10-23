@@ -21,7 +21,7 @@ class Logger extends AbstractLogger
     public static function instance(): Logger
     {
         if (self::$instance === null) {
-            self::$instance = new Logger();
+            self::$instance = new self();
         }
 
         return self::$instance;
@@ -35,8 +35,9 @@ class Logger extends AbstractLogger
      * @param array  $context
      *
      * @throws \Swift_SwiftException
+     * @throws \LogicException
      */
-    public function log($level, $message, array $context = [])
+    public function log($level, $message, array $context = []): void
     {
         $message = (string)$message;
         $compactMessage = $this->formatMessage($message, $context);
@@ -84,10 +85,11 @@ class Logger extends AbstractLogger
      * @param string $level
      *
      * @return bool
+     * @throws \LogicException
      */
     private function writeFile(string $message, string $level): bool
     {
-        $directory = BASE_DIR . 'logs/' . date('Y');
+        $directory = Config::get('BaseDir') . 'logs/' . date('Y');
         if (!is_dir($directory)) {
             mkdir($directory, 02777);
             chmod($directory, 02777);
@@ -129,6 +131,7 @@ class Logger extends AbstractLogger
      * @param string $message
      *
      * @return bool
+     * @throws \LogicException
      * @throws \Swift_SwiftException
      */
     private function sendMail(string $message): bool

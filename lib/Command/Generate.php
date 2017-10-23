@@ -2,6 +2,7 @@
 
 namespace Kilab\Api\Command;
 
+use Kilab\Api\Config;
 use Kilab\Api\Console;
 use ReflectionMethod;
 
@@ -38,6 +39,8 @@ class Generate
      * Wrapper to call all operation in one command.
      *
      * @param array $params
+     *
+     * @throws \LogicException
      */
     public function all(array $params): void
     {
@@ -54,6 +57,8 @@ class Generate
      * Create entity file.
      *
      * @param array $params
+     *
+     * @throws \LogicException
      */
     public function entity(array $params): void
     {
@@ -80,6 +85,8 @@ class Generate
      * Create entity schema file.
      *
      * @param array $params
+     *
+     * @throws \LogicException
      */
     public function schema(array $params): void
     {
@@ -106,6 +113,8 @@ class Generate
      * Create entity controller file.
      *
      * @param array $params
+     *
+     * @throws \LogicException
      */
     public function controller(array $params): void
     {
@@ -132,6 +141,8 @@ class Generate
      * Create and save generated file.
      *
      * @param array $options
+     *
+     * @throws \LogicException
      */
     private function createFile(array $options): void
     {
@@ -144,7 +155,7 @@ class Generate
         $templateContent = $this->getFileTemplate($options['fileKind']);
         $fileContent = str_replace($options['replace']['tags'], $options['replace']['values'], $templateContent);
 
-        if (file_put_contents(BASE_DIR . 'app/' . $options['filePath'], $fileContent)) {
+        if (file_put_contents(Config::get('BaseDir') . 'app/' . $options['filePath'], $fileContent)) {
             Console::success('[OK]' . PHP_EOL);
         } else {
             Console::error('[FAIL]' . PHP_EOL);
@@ -157,10 +168,11 @@ class Generate
      * @param string $file
      *
      * @return string
+     * @throws \LogicException
      */
     private function getFileTemplate(string $file): string
     {
-        $filePath = BASE_DIR . 'lib/Command/stubs/' . $file . '.stub';
+        $filePath = Config::get('BaseDir') . 'lib/Command/stubs/' . $file . '.stub';
 
         if (!file_exists($filePath)) {
             Console::fatal('Missing stub file for: ' . $file . '.');

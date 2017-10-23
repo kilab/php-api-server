@@ -11,6 +11,7 @@ class Env
      * @param string $key
      *
      * @return string|bool|int|null
+     * @throws \LogicException
      */
     public static function get(string $key)
     {
@@ -33,10 +34,11 @@ class Env
 
     /**
      * Load environment file from /public directory.
+     * @throws \LogicException
      */
     private static function loadFile(): void
     {
-        foreach (file(BASE_DIR . '/.env', FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES) as $line) {
+        foreach (file(__DIR__ . '/../.env', FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES) as $line) {
             putenv($line);
         }
     }

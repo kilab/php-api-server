@@ -1,6 +1,7 @@
 <?php
 
 return [
+    'BaseDir'  => __DIR__ . '/../../',
     'Database' => [
         'Driver' => 'pdo_mysql',
         'Host' => '',

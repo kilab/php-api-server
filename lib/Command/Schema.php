@@ -4,6 +4,7 @@ namespace Kilab\Api\Command\Db;
 
 use Illuminate\Database\Capsule\Manager;
 use Illuminate\Database\Schema\Blueprint;
+use Kilab\Api\Config;
 use Kilab\Api\Console;
 use ReflectionClass;
 use ReflectionMethod;
@@ -121,6 +122,7 @@ class Schema
      * Load schema from files in /Schema directory.
      *
      * @return array
+     * @throws \LogicException
      * @throws \ReflectionException
      */
     private
@@ -128,7 +130,7 @@ class Schema
     {
         $schemas = [];
 
-        foreach (glob(BASE_DIR . 'app/Entity/Schema/*.php') as $filePath) {
+        foreach (glob(Config::get('BaseDir') . 'app/Entity/Schema/*.php') as $filePath) {
             $filePath = explode('/', $filePath);
             $className = rtrim(end($filePath), '.php');
             $className = '\App\Entity\Schema\\' . $className;

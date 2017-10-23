@@ -58,6 +58,7 @@ class Config
      * Check whether config file exist in app directory.
      *
      * @return bool
+     * @throws \LogicException
      */
     private static function configFileExists(): bool
     {
@@ -68,9 +69,10 @@ class Config
      * Get path to config file.
      *
      * @return string
+     * @throws \LogicException
      */
     private static function getConfigFilePath(): string
     {
-        return BASE_DIR . 'app/Config/Config.' . Env::get('ENVIRONMENT') . '.php';
+        return __DIR__ . '/../app/Config/Config.' . Env::get('ENVIRONMENT') . '.php';
     }
 }

@@ -83,7 +83,7 @@ class Request extends SymfonyRequest
         $entityName = Config::get('Default.Entity');
         $entityPath = explode('/', $this->getPathInfo());
 
-        unset($entityPath[0], $entityPath[1]);
+        unset($entityPath[0]);
         $entityPath = array_values($entityPath);
 
         if ($entityPath) {
@@ -93,7 +93,7 @@ class Request extends SymfonyRequest
 
             $entityName = $entityPath[0];
         } else {
-            header('Location: /' . API_VERSION . '/' . $entityName);
+            header('Location: /' . $entityName);
             exit(0);
         }
 
@@ -189,7 +189,7 @@ class Request extends SymfonyRequest
         $action = '';
         $actionPath = explode('/', $this->getPathInfo());
 
-        unset($actionPath[0], $actionPath[1]);
+        unset($actionPath[0]);
         $actionPath = array_values($actionPath);
 
         if (isset($actionPath[2])) {

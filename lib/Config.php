@@ -18,12 +18,8 @@ class Config
      */
     public static function get(string $key)
     {
-        if (!file_exists(BASE_DIR . 'app/' . ucfirst(API_VERSION))) {
-            throw new LogicException('Invalid API version.');
-        }
-
         if (!self::configFileExists()) {
-            throw new LogicException('Config file does not exist. Please copy app/Config.sample.php to app/' . ucfirst(API_VERSION) . '/Config');
+            throw new LogicException('Config file does not exist. Please copy app/Config.sample.php to app/Config');
         }
 
         $configFile = include self::getConfigFilePath();
@@ -69,12 +65,12 @@ class Config
     }
 
     /**
-     * Get path to config file for request API version.
+     * Get path to config file.
      *
      * @return string
      */
     private static function getConfigFilePath(): string
     {
-        return BASE_DIR . 'app/' . ucfirst(API_VERSION) . '/Config/Config.' . Env::get('ENVIRONMENT') . '.php';
+        return BASE_DIR . 'app/Config/Config.' . Env::get('ENVIRONMENT') . '.php';
     }
 }

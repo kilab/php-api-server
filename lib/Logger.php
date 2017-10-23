@@ -3,13 +3,12 @@
 namespace Kilab\Api;
 
 use Psr\Log\AbstractLogger;
-use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
-use Swift_SmtpTransport;
 use Swift_Mailer;
 use Swift_Message;
+use Swift_SmtpTransport;
 
-class Logger extends AbstractLogger implements LoggerInterface
+class Logger extends AbstractLogger
 {
 
     protected static $instance;
@@ -100,7 +99,7 @@ class Logger extends AbstractLogger implements LoggerInterface
             chmod($directory, 02777);
         }
 
-        $filename = $directory . DIRECTORY_SEPARATOR . date('d') . '-' . API_VERSION . '-' . $level . '.log';
+        $filename = $directory . DIRECTORY_SEPARATOR . date('d') . '-' . $level . '.log';
         if (!file_exists($filename)) {
             touch($filename);
             chmod($filename, 0777);
@@ -146,7 +145,7 @@ class Logger extends AbstractLogger implements LoggerInterface
 
         $mailer = new Swift_Mailer($transport);
 
-        $messageContent = "In your API has occured error. Details are listed below.<br /><br />";
+        $messageContent = 'In your API has occured error. Details are listed below.<br /><br />';
         $messageContent .= '<pre style="border-left: palevioletred 5px solid; font-family: Consolas, \'Lucida Console\', Monaco, monospace; font-size: 12px; padding-left: 5px;">' . $message . '</pre>';
 
         $message = (new Swift_Message('API ERROR ALERT'))

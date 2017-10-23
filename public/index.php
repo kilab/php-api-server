@@ -2,15 +2,6 @@
 
 const BASE_DIR = __DIR__ . '/../';
 
-// determine API version to load
-preg_match('/v\d/i', $_SERVER['REQUEST_URI'], $matches);
-
-if (!empty($matches)) {
-    define('API_VERSION', strtolower($matches[0]));
-} else {
-    header('Location: /v1');
-}
-
 $loader = require BASE_DIR . 'vendor/autoload.php';
 
 $errorHandler = new Kilab\Api\ErrorHandler();

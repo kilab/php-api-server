@@ -34,7 +34,7 @@ class Schema
         Console::write('.' . PHP_EOL . PHP_EOL);
 
         Console::write('Example command call: ');
-        Console::write('php bin/console.php schema update --version=1', 'yellow');
+        Console::write('php bin/console.php schema update', 'yellow');
     }
 
     /**
@@ -128,10 +128,10 @@ class Schema
     {
         $schemas = [];
 
-        foreach (glob(BASE_DIR . 'app/' . API_VERSION . '/Entity/Schema/*.php') as $filePath) {
+        foreach (glob(BASE_DIR . 'app/Entity/Schema/*.php') as $filePath) {
             $filePath = explode('/', $filePath);
             $className = rtrim(end($filePath), '.php');
-            $className = '\App\\' . API_VERSION . '\Entity\Schema\\' . $className;
+            $className = '\App\Entity\Schema\\' . $className;
 
             $schemaClass = new $className();
             $reflection = new ReflectionClass($className);

@@ -31,7 +31,7 @@ class Generate
         Console::write('.' . PHP_EOL . PHP_EOL);
 
         Console::write('Example command call: ');
-        Console::write('php bin/console.php generate all --name=Order --version=1', 'yellow');
+        Console::write('php bin/console.php generate all --name=Order', 'yellow');
     }
 
     /**
@@ -64,13 +64,13 @@ class Generate
         $entityName = studly_case($params['name']);
         $options = [
             'entityName' => $entityName,
-            'className'  => 'App\\' . API_VERSION . '\Entity\\' . $entityName,
+            'className'  => 'App\\Entity\\' . $entityName,
             'fileKind'   => 'entity',
             'replace'    => [
-                'tags'   => ['{apiVersion}', '{entityName}'],
-                'values' => [API_VERSION, $entityName],
+                'tags'   => ['{entityName}'],
+                'values' => [$entityName],
             ],
-            'filePath'   => API_VERSION . '/Entity/' . $entityName . '.php',
+            'filePath'   => 'Entity/' . $entityName . '.php',
         ];
 
         $this->createFile($options);
@@ -90,13 +90,13 @@ class Generate
         $entityName = studly_case($params['name']);
         $options = [
             'entityName' => $entityName,
-            'className'  => 'App\\' . API_VERSION . '\Entity\Schema\\' . $entityName,
+            'className'  => 'App\\Entity\Schema\\' . $entityName,
             'fileKind'   => 'schema',
             'replace'    => [
-                'tags'   => ['{apiVersion}', '{entityName}', '{entityTable}'],
-                'values' => [API_VERSION, $entityName, str_plural(snake_case($entityName))],
+                'tags'   => ['{entityName}', '{entityTable}'],
+                'values' => [$entityName, str_plural(snake_case($entityName))],
             ],
-            'filePath'   => API_VERSION . '/Entity/Schema/' . $entityName . '.php',
+            'filePath'   => 'Entity/Schema/' . $entityName . '.php',
         ];
 
         $this->createFile($options);
@@ -116,13 +116,13 @@ class Generate
         $entityName = studly_case($params['name']);
         $options = [
             'entityName' => $entityName,
-            'className'  => 'App\\' . API_VERSION . '\Controller\\' . str_plural($entityName) . 'Controller',
+            'className'  => 'App\\Controller\\' . str_plural($entityName) . 'Controller',
             'fileKind'   => 'controller',
             'replace'    => [
-                'tags'   => ['{apiVersion}', '{entityName}', '{controllerName}'],
-                'values' => [API_VERSION, $entityName, str_plural($entityName)],
+                'tags'   => ['{entityName}', '{controllerName}'],
+                'values' => [$entityName, str_plural($entityName)],
             ],
-            'filePath'   => API_VERSION . '/Controller/' . str_plural($entityName) . 'Controller.php',
+            'filePath'   => 'Controller/' . str_plural($entityName) . 'Controller.php',
         ];
 
         $this->createFile($options);

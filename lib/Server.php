@@ -91,10 +91,7 @@ class Server
      */
     private function defineControllerClass(): string
     {
-        $entityController = sprintf('\App\\%s\\Controller\\%sController',
-            ucfirst(API_VERSION),
-            ucfirst($this->request->getEntity())
-        );
+        $entityController = sprintf('\App\\Controller\\%sController', ucfirst($this->request->getEntity()));
 
         return $entityController;
     }
@@ -111,10 +108,10 @@ class Server
         if ($this->request->getMethod() === 'GET') {
             $entityName = str_singular(ucfirst($this->request->getEntity()));
             $relationship = strtolower(ltrim($this->request->getAction(), 'get'));
-            $className = '\App\\' . ucfirst(API_VERSION) . '\Entity\\' . $entityName;
+            $className = '\App\\Entity\\' . $entityName;
 
             if (class_exists($className)) {
-                $reflectionClass = new ReflectionClass('\App\\' . ucfirst(API_VERSION) . '\Entity\\' . $entityName);
+                $reflectionClass = new ReflectionClass('\App\\Entity\\' . $entityName);
 
                 if ($reflectionClass->hasMethod($relationship)) {
                     $this->request->setRelation($relationship);

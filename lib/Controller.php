@@ -218,6 +218,30 @@ class Controller
     }
 
     /**
+     * Return first record from Entity.
+     */
+    public function getFirstAction(): void
+    {
+        $this->responseData = $this->repository->first()->toArray();
+    }
+
+    /**
+     * Return last record from Entity.
+     */
+    public function getLastAction(): void
+    {
+        $this->responseData = $this->repository->orderBy('id', 'DESC')->limit(1)->get()->toArray();
+    }
+
+    /**
+     * Return total number of Entity records.
+     */
+    public function getCountAction(): void
+    {
+        $this->responseData = ['count' => $this->repository->count()];
+    }
+
+    /**
      * Convert entity fields to camelCase notation.
      *
      * @param array $entity

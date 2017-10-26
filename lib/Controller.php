@@ -3,6 +3,7 @@
 namespace Kilab\Api;
 
 use Illuminate\Database\Eloquent\Model;
+use InvalidArgumentException;
 use Kilab\Api\Exception\EntityNotFoundException;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -66,7 +67,44 @@ class Controller
      */
     public function getListAction(): void
     {
-        $entities = $this->repository->get()->toArray();
+        $repository = $this->repository;
+        $entities = [];
+
+        if ($limit = $this->request->query->get('limit')) {
+            $repository->take($limit);
+        }
+
+        if ($offset = $this->request->query->get('offset')) {
+            $repository->skip($offset);
+        }
+
+        if ($order = $this->request->query->get('order')) {
+            $orderParts = explode(',', $order);
+
+            if (count($orderParts) !== 2) {
+                throw new InvalidArgumentException('Invalid format in order query param. Should be: ?order=id,DESC');
+            }
+
+            $direction = strtoupper($orderParts[1]);
+
+            if (!in_array($direction, ['ASC', 'DESC'])) {
+                throw new InvalidArgumentException('Invalid direction kind - allowed is ASC or DESC');
+            }
+
+            $this->repository->orderBy(snake_case($orderParts[0]), $direction);
+        }
+
+        if ($where = $this->request->query->get('where')) {
+            foreach ($where as $condition) {
+                $this->repository->where(snake_case($condition[0]), $condition[1], $condition[2]);
+            }
+        }
+
+        if ($fields = $this->request->query->get('fields')) {
+            $entities = $repository->get($fields)->toArray();
+        } else {
+            $entities = $repository->get()->toArray();
+        }
 
         if (Config::get('Entity.CamelCaseFieldNames')) {
             $entities = $this->toCamelCase($entities);

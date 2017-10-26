@@ -55,7 +55,9 @@ class Request extends SymfonyRequest
         parent::enableHttpMethodParameterOverride();
 
         if ($this->headers->get('Content-Type') === 'application/json') {
-            $this->request->replace(json_decode($content, true));
+            if ($content !== '') {
+                $this->request->replace(json_decode($content, true));
+            }
         }
 
         $this->setEntity();

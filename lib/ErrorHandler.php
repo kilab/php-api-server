@@ -70,7 +70,8 @@ class ErrorHandler
     public function errorHandler(int $number, string $message, string $file, int $line, $context): void
     {
         if (Config::get('Logger.Enabled')) {
-            $contextData = $this->prepareContext($number, $file, $line, $context);
+            $contextString = $context['traceString'] ?? '';
+            $contextData = $this->prepareContext($number, $file, $line, $context, $contextString);
 
             Logger::instance()->error($message, $contextData);
         }

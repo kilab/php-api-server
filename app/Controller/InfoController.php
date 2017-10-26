@@ -1,6 +1,6 @@
 <?php
 
-namespace App\V1\Controller;
+namespace App\Controller;
 
 use Kilab\Api\Controller;
 

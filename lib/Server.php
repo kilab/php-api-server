@@ -121,7 +121,7 @@ class Server
             }
         }
 
-        return ucfirst($this->request->getAction()) . 'Action';
+        return strtolower($this->request->getMethod()) . ucfirst($this->request->getAction()) . 'Action';
     }
 
 }

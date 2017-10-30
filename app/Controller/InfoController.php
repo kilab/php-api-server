@@ -20,7 +20,7 @@ class InfoController extends Controller
     private function getEndPoints(): array
     {
         $endpoints = [];
-        $controllerRepository = BASE_DIR . 'app/' . strtoupper(API_VERSION) . '/Controller';
+        $controllerRepository = BASE_DIR . 'app/Controller';
         $controllers = scandir($controllerRepository, SCANDIR_SORT_ASCENDING);
 
         foreach ($controllers as $controller) {

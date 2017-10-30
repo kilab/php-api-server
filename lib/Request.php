@@ -88,6 +88,10 @@ class Request extends SymfonyRequest
         unset($entityPath[0]);
         $entityPath = array_values($entityPath);
 
+        if ($entityPath[0] === '') {
+            unset($entityPath[0]);
+        }
+
         if ($entityPath) {
             if (isset($entityPath[1]) && $entityPath[1] > 0) {
                 $this->setIdentifier($entityPath[1]);

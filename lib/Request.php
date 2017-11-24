@@ -208,7 +208,7 @@ class Request extends SymfonyRequest
             if ($this->getIdentifier()) {
                 $action = 'getItem';
             } elseif (isset($actionPath[1])) {
-                $action = $actionPath[1];
+                $action = 'get' . ucfirst($actionPath[1]);
             }
         } elseif ($this->getMethod() === 'POST') {
             $action = 'postItem';
